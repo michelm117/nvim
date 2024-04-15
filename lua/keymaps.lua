@@ -34,6 +34,10 @@ vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right win
 vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
 vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
 
+-- Keybindings to swwitch buffers
+vim.keymap.set("n", "<TAB>", "<cmd>BufferLineCycleNext<CR>", { desc = "Switch to next buffer" })
+vim.keymap.set("n", "<S-TAB>", "<cmd>BufferLineCyclePrev<CR>", { desc = "Switch to previous buffer" })
+
 -- [[ nvim-tree ]]
 vim.keymap.set("n", "<C-B>", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file tree" })
 

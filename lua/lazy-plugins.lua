@@ -38,6 +38,7 @@ require("lazy").setup({
 	require("plugins/copilot"),
 	require("plugins/nvim-tree"),
 	require("plugins/lualine"),
+	require("plugins/bufferline"),
 }, {
 	ui = {
 		-- If you are using a Nerd Font: set icons to an empty table which will use the
