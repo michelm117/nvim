@@ -30,4 +30,7 @@ vim.opt.relativenumber = true
 
 vim.filetype.add({ extension = { templ = "templ" } })
 
+-- Copy to system clipboard
+vim.opt.clipboard:append("unnamedplus")
+
 -- vim: ts=2 sts=2 sw=2 et
