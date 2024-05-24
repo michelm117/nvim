@@ -145,6 +145,23 @@ return {
 				html = {},
 				htmx = {},
 				tailwindcss = {},
+				biome = {
+					cmd = { "biome", "lsp" },
+					filetypes = {
+						"javascript",
+						"javascriptreact",
+						"json",
+						"jsonc",
+						"typescript",
+						"typescript.tsx",
+						"typescriptreact",
+						"astro",
+						"svelte",
+						"vue",
+					},
+					-- root_dir = require("lspconfig").root_pattern("biome.json", "biome.jsonc"),
+					single_file_support = false,
+				},
 
 				-- pyright = {},
 				-- rust_analyzer = {},
