@@ -26,3 +26,10 @@ nvim
 rm -rf ~/.config/nvim
 rm -rf ~/.local/share/nvim
 ```
+
+### Debugging
+#### [Go](https://github.com/mfussenegger/nvim-dap/wiki/Debug-Adapter-installation#go)
+- Install delve
+  - `go install github.com/go-delve/delve/cmd/dlv@latest`
+
+
