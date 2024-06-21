@@ -33,7 +33,8 @@ return {
 				-- is found.
 				javascript = { { "prettierd", "prettier" } },
 				typescript = { { "prettierd", "prettier" } },
-				go = { { "gofumpt", "goimports" } },
+				go = { { "gofumpt", "goimports", "gopls" } },
+				templ = { { "templ" } },
 			},
 		},
 	},
