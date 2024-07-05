@@ -37,6 +37,7 @@ vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper win
 -- Keybindings to swwitch buffers
 vim.keymap.set("n", "<TAB>", "<cmd>BufferLineCycleNext<CR>", { desc = "Switch to next buffer" })
 vim.keymap.set("n", "<S-TAB>", "<cmd>BufferLineCyclePrev<CR>", { desc = "Switch to previous buffer" })
+vim.keymap.set("n", "<leader>q", "<cmd>bd<CR>", { desc = "Close current buffer" })
 
 -- [[ nvim-tree ]]
 vim.keymap.set("n", "<C-B>", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file tree" })
