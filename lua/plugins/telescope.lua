@@ -108,6 +108,11 @@ return {
 			vim.keymap.set("n", "<leader>sn", function()
 				builtin.find_files({ cwd = vim.fn.stdpath("config") })
 			end, { desc = "[S]earch [N]eovim files" })
+
+			-- Shortcut for searching obsidian vault files under Documents/vault
+			vim.keymap.set("n", "<leader>so", function()
+				builtin.find_files({ cwd = "~/Documents/vault" })
+			end, { desc = "[S]earch [O]bsidian vault files" })
 		end,
 	},
 }
