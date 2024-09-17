@@ -167,10 +167,8 @@ return {
 						"astro",
 						"svelte",
 						"vue",
-						"css",
 					},
 					root_dir = util.root_pattern("biome.json", "biome.jsonc"),
-
 					single_file_support = false,
 				},
 
@@ -182,8 +180,23 @@ return {
 				--    https://github.com/pmizio/typescript-tools.nvim
 				--
 				-- But for many setups, the LSP (`tsserver`) will work just fine
-				tsserver = {},
-				--
+				tsserver = {
+					settings = {
+						autoFixOnSave = false,
+					},
+				},
+				stylelint_lsp = {
+					settings = {
+						stylelintplus = {
+							autoFixOnSave = true,
+							autoFixOnFormat = true,
+						},
+					},
+					filetypes = {
+						"css",
+						"scss",
+					},
+				},
 
 				lua_ls = {
 					-- cmd = {...},
@@ -224,6 +237,14 @@ return {
 					vim.lsp.buf.format({ async = false })
 				end,
 			})
+
+			-- Add the autocmd for formatting CSS files on save
+			-- vim.api.nvim_create_autocmd("BufWritePre", {
+			-- 	pattern = "*.css",
+			-- 	callback = function()
+			-- 		vim.lsp.buf.format({ async = false })
+			-- 	end,
+			-- })
 
 			-- Ensure the servers and tools above are installed
 			--  To check the current status of installed tools and/or manually install
