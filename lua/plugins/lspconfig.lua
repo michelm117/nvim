@@ -180,11 +180,11 @@ return {
 				--    https://github.com/pmizio/typescript-tools.nvim
 				--
 				-- But for many setups, the LSP (`tsserver`) will work just fine
-				tsserver = {
-					settings = {
-						autoFixOnSave = false,
-					},
-				},
+				-- tsserver = {
+				-- 	settings = {
+				-- 		autoFixOnSave = false,
+				-- 	},
+				-- },
 				stylelint_lsp = {
 					settings = {
 						stylelintplus = {

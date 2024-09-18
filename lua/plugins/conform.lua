@@ -32,7 +32,7 @@ return {
 				-- You can use a sub-list to tell conform to run *until* a formatter
 				-- is found.
 				javascript = { "prettierd", "prettier" },
-				typescript = { "prettierd", "prettier" },
+				typescript = { "prettierd", "prettier" }, -- FIXME use biome
 				go = { "gofumpt", "goimports-reviser", "gopls" },
 				templ = { "templ" },
 			},
