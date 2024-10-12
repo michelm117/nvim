@@ -77,7 +77,22 @@ return {
 			local builtin = require("telescope.builtin")
 			vim.keymap.set("n", "<leader>sh", builtin.help_tags, { desc = "[S]earch [H]elp" })
 			vim.keymap.set("n", "<leader>sk", builtin.keymaps, { desc = "[S]earch [K]eymaps" })
-			vim.keymap.set("n", "<leader>sf", builtin.find_files, { desc = "[S]earch [F]iles" })
+			-- vim.keymap.set("n", "<leader>sf", builtin.find_files, { desc = "[S]earch [F]iles" })
+			vim.keymap.set("n", "<leader>sf", function()
+				-- Try searching with git_files first
+				local opts = {} -- you can define additional options here if needed
+				local ok = pcall(builtin.git_files, opts) -- Search git files first
+
+				if not ok then
+					-- If not in a git repo, fallback to find_files, including hidden but tracked files
+					builtin.find_files({
+						hidden = true, -- include hidden files
+						follow = true, -- follow symbolic links
+						-- Exclude untracked hidden files by leveraging '.gitignore'
+						file_ignore_patterns = { "^%.git/" },
+					})
+				end
+			end, { desc = "[S]earch [F]iles (with Git tracking)" })
 			vim.keymap.set("n", "<leader>ss", builtin.builtin, { desc = "[S]earch [S]elect Telescope" })
 			vim.keymap.set("n", "<leader>sw", builtin.grep_string, { desc = "[S]earch current [W]ord" })
 			vim.keymap.set("n", "<leader>sg", builtin.live_grep, { desc = "[S]earch by [G]rep" })
