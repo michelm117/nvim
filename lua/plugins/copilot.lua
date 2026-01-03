@@ -2,11 +2,11 @@ return {
 	{ -- Copilot
 		"zbirenbaum/copilot.lua",
 		cmd = "Copilot",
-		event = "InsertEnter",
+		event = { "InsertEnter", "BufRead", "BufNewFile" },
 		config = function()
 			require("copilot").setup({
 				panel = {
-					enaled = true,
+					enabled = true,
 					auto_refresh = true,
 					layout = {
 						position = "right", -- | top | left | right | bottom
@@ -15,6 +15,9 @@ return {
 				},
 				suggestion = {
 					auto_trigger = true,
+				},
+				filetypes = {
+					markdown = true,
 				},
 			})
 		end,

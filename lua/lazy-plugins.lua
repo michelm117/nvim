@@ -28,6 +28,7 @@ require("lazy").setup({
 	-- modular approach: using `require 'path/name'` will
 	-- include a plugin definition from file lua/path/name.lua
 	require("plugins/which-key"),
+	require("plugins/ccc"),
 	require("plugins/telescope"),
 	require("plugins/lspconfig"),
 	require("plugins/conform"),
@@ -44,6 +45,9 @@ require("lazy").setup({
 	require("plugins/oil"),
 	require("plugins/debugging"),
 	require("plugins/typescript"),
+	require("plugins/httpyac"),
+	require("plugins/mdx"),
+	require("plugins/strudel"),
 }, {
 	ui = {
 		-- If you are using a Nerd Font: set icons to an empty table which will use the

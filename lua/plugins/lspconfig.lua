@@ -154,6 +154,7 @@ return {
 				html = {},
 				htmx = {},
 				tailwindcss = {},
+				marksman = {},
 				biome = {
 					cmd = { "biome", "lsp-proxy" },
 					filetypes = {
