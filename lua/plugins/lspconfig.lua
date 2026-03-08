@@ -16,6 +16,82 @@ return {
 			{ "folke/neodev.nvim", opts = {} },
 		},
 		config = function()
+			local last_go_test_cmd = nil
+
+			local function go_root(bufnr)
+				local name = vim.api.nvim_buf_get_name(bufnr)
+				return vim.fs.root(name, { "go.work", "go.mod", ".git" }) or vim.loop.cwd()
+			end
+
+			local function current_go_pkg(bufnr)
+				local root = go_root(bufnr)
+				local file_dir = vim.fs.dirname(vim.api.nvim_buf_get_name(bufnr))
+				if not file_dir or file_dir == "" then
+					return "./..."
+				end
+				local rel = vim.fs.relpath(root, file_dir)
+				if not rel then
+					return "."
+				end
+				if rel == "." then
+					return "."
+				end
+				if not rel:match("^%./") then
+					rel = "./" .. rel
+				end
+				return rel
+			end
+
+			local function run_go_cmd(bufnr, args, title)
+				local cwd = go_root(bufnr)
+				local cmd = vim.list_extend({ "go" }, args)
+				last_go_test_cmd = { cmd = vim.deepcopy(cmd), cwd = cwd, title = title }
+				vim.notify(("%s (cwd: %s)"):format(table.concat(cmd, " "), cwd), vim.log.levels.INFO)
+				vim.system(cmd, { cwd = cwd, text = true }, function(res)
+					local output = ((res.stdout or "") .. "\n" .. (res.stderr or "")):gsub("\r", "")
+					local lines = vim.split(output, "\n", { trimempty = true })
+					vim.schedule(function()
+						vim.fn.setqflist({}, " ", {
+							title = title,
+							lines = lines,
+							efm = "%f:%l:%c: %m,%f:%l: %m,%m",
+						})
+						vim.cmd("copen")
+						if res.code == 0 then
+							vim.notify(title .. " passed", vim.log.levels.INFO)
+						else
+							vim.notify(title .. " failed", vim.log.levels.WARN)
+						end
+					end)
+				end)
+			end
+
+			local function nearest_go_test(bufnr)
+				local row = vim.api.nvim_win_get_cursor(0)[1]
+				local lines = vim.api.nvim_buf_get_lines(bufnr, 0, row, false)
+				for i = #lines, 1, -1 do
+					local line = lines[i]
+					local name = line:match("^%s*func%s+(Test[%w_]+)%s*%(")
+						or line:match("^%s*func%s+%b()%s*(Test[%w_]+)%s*%(")
+					if name then
+						return name
+					end
+				end
+				return nil
+			end
+
+			local function file_go_tests(bufnr)
+				local tests = {}
+				for _, line in ipairs(vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)) do
+					local name = line:match("^%s*func%s+(Test[%w_]+)%s*%(")
+						or line:match("^%s*func%s+%b()%s*(Test[%w_]+)%s*%(")
+					if name then
+						table.insert(tests, name)
+					end
+				end
+				return tests
+			end
+
 			-- Brief aside: **What is LSP?**
 			--
 			-- LSP is an initialism you've probably heard, but might not understand what it is.
@@ -110,6 +186,75 @@ return {
 					local client = vim.lsp.get_client_by_id(event.data.client_id)
 					if client and client.name == "gopls" and vim.lsp.inlay_hint then
 						vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
+
+						map("<leader>uh", function()
+							local enabled = vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf })
+							vim.lsp.inlay_hint.enable(not enabled, { bufnr = event.buf })
+						end, "Toggle Inlay [H]ints")
+
+						map("<leader>tn", function()
+							local test = nearest_go_test(event.buf)
+							if not test then
+								vim.notify("No nearest Test* function found", vim.log.levels.WARN)
+								return
+							end
+							run_go_cmd(event.buf, { "test", current_go_pkg(event.buf), "-run", "^" .. test .. "$" }, "Go Test Nearest")
+						end, "[T]est [N]earest")
+
+						map("<leader>tf", function()
+							local tests = file_go_tests(event.buf)
+							if #tests == 0 then
+								vim.notify("No Test* functions found in this file", vim.log.levels.WARN)
+								return
+							end
+							run_go_cmd(event.buf, {
+								"test",
+								current_go_pkg(event.buf),
+								"-run",
+								"^(" .. table.concat(tests, "|") .. ")$",
+							}, "Go Test File")
+						end, "[T]est [F]ile")
+
+						map("<leader>tp", function()
+							run_go_cmd(event.buf, { "test", current_go_pkg(event.buf) }, "Go Test Package")
+						end, "[T]est [P]ackage")
+
+						map("<leader>ta", function()
+							run_go_cmd(event.buf, { "test", "./..." }, "Go Test All")
+						end, "[T]est [A]ll")
+
+						map("<leader>tc", function()
+							run_go_cmd(event.buf, { "test", "./...", "-coverprofile=cover.out" }, "Go Coverage")
+						end, "[T]est [C]overage")
+
+						map("<leader>tl", function()
+							if not last_go_test_cmd then
+								vim.notify("No previous Go test command", vim.log.levels.WARN)
+								return
+							end
+							vim.system(last_go_test_cmd.cmd, { cwd = last_go_test_cmd.cwd, text = true }, function(res)
+								local output = ((res.stdout or "") .. "\n" .. (res.stderr or "")):gsub("\r", "")
+								local lines = vim.split(output, "\n", { trimempty = true })
+								vim.schedule(function()
+									vim.fn.setqflist({}, " ", {
+										title = last_go_test_cmd.title .. " (rerun)",
+										lines = lines,
+										efm = "%f:%l:%c: %m,%f:%l: %m,%m",
+									})
+									vim.cmd("copen")
+								end)
+							end)
+						end, "[T]est [L]ast")
+
+						if client.server_capabilities.codeLensProvider then
+							vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
+								buffer = event.buf,
+								callback = function()
+									pcall(vim.lsp.codelens.refresh)
+								end,
+							})
+							pcall(vim.lsp.codelens.refresh)
+						end
 					end
 
 					if client and client.server_capabilities.documentHighlightProvider then
@@ -166,10 +311,20 @@ return {
 						gopls = {
 							analyses = {
 								unusedparams = true,
+								nilness = true,
+								unusedwrite = true,
+								useany = true,
+							},
+							codelenses = {
+								test = true,
+								generate = true,
+								tidy = true,
+								upgrade_dependency = true,
 							},
 							staticcheck = true,
 							gofumpt = true,
 							usePlaceholders = true,
+							semanticTokens = true,
 							completeUnimported = true,
 						},
 					},
@@ -247,8 +402,12 @@ return {
 
 			-- Add the autocmd for organizing imports and formatting Go files
 			vim.api.nvim_create_autocmd("BufWritePre", {
-				pattern = "*.go",
+				pattern = { "*.go", "go.mod", "go.sum", "go.work", "*.gotmpl", "*.tmpl" },
 				callback = function()
+					local ft = vim.bo.filetype
+					if not vim.tbl_contains({ "go", "gomod", "gosum", "gowork", "gotmpl" }, ft) then
+						return
+					end
 					local params = vim.lsp.util.make_range_params()
 					params.context = { only = { "source.organizeImports" } }
 					-- buf_request_sync defaults to a 1000ms timeout. Depending on your
