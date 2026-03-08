@@ -108,6 +108,10 @@ return {
 					--
 					-- When you move your cursor, the highlights will be cleared (the second autocommand).
 					local client = vim.lsp.get_client_by_id(event.data.client_id)
+					if client and client.name == "gopls" and vim.lsp.inlay_hint then
+						vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
+					end
+
 					if client and client.server_capabilities.documentHighlightProvider then
 						vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
 							buffer = event.buf,
@@ -131,8 +135,15 @@ return {
 
 			-- Tell Neovim to treat .jsonl files as the "jsonl" filetype
 			vim.filetype.add({
+				filename = {
+					["go.mod"] = "gomod",
+					["go.sum"] = "gosum",
+					["go.work"] = "gowork",
+				},
 				extension = {
 					jsonl = "jsonl",
+					gotmpl = "gotmpl",
+					tmpl = "gotmpl",
 				},
 			})
 
@@ -151,11 +162,17 @@ return {
 			local servers = {
 				-- clangd = {},
 				gopls = {
-					analyses = {
-						unusedparams = true,
+					settings = {
+						gopls = {
+							analyses = {
+								unusedparams = true,
+							},
+							staticcheck = true,
+							gofumpt = true,
+							usePlaceholders = true,
+							completeUnimported = true,
+						},
 					},
-					staticcheck = true,
-					gofumpt = true,
 				},
 				templ = {},
 				html = {},
@@ -273,6 +290,10 @@ return {
 			local ensure_installed = vim.tbl_keys(servers or {})
 			vim.list_extend(ensure_installed, {
 				"stylua", -- Used to format Lua code
+				"gofumpt",
+				"goimports",
+				"goimports-reviser",
+				"delve",
 			})
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 

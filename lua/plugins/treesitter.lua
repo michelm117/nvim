@@ -6,6 +6,11 @@ return {
 			ensure_installed = {
 				"bash",
 				"c",
+				"go",
+				"gomod",
+				"gosum",
+				"gowork",
+				"gotmpl",
 				"html",
 				"templ",
 				"lua",
@@ -13,7 +18,6 @@ return {
 				"markdown",
 				"vim",
 				"vimdoc",
-				"go",
 				"typescript",
 				"javascript",
 			},
@@ -33,6 +37,15 @@ return {
 
 			---@diagnostic disable-next-line: missing-fields
 			require("nvim-treesitter").setup(opts)
+
+			local go_filetypes = { "go", "gomod", "gosum", "gowork", "gotmpl" }
+			vim.api.nvim_create_autocmd("FileType", {
+				pattern = go_filetypes,
+				group = vim.api.nvim_create_augroup("kickstart-go-treesitter", { clear = true }),
+				callback = function(args)
+					pcall(vim.treesitter.start, args.buf)
+				end,
+			})
 
 			-- There are additional nvim-treesitter modules that you can use to interact
 			-- with nvim-treesitter. You should go explore a few and see what interests you:
