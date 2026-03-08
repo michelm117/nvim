@@ -42,7 +42,7 @@ require("lazy").setup({
 	require("plugins/bufferline"),
 	require("plugins/todo-comments"),
 	require("plugins/mini"),
-	require("plugins/oil"),
+	require("plugins/yazi"),
 	require("plugins/debugging"),
 	require("plugins/typescript"),
 	require("plugins/httpyac"),

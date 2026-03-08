@@ -159,7 +159,6 @@ return {
 				},
 				templ = {},
 				html = {},
-				htmx = {},
 				tailwindcss = {},
 				marksman = {},
 				jsonls = {
@@ -224,6 +223,10 @@ return {
 					},
 				},
 			}
+
+			if vim.fn.executable("htmx-lsp") == 1 then
+				servers.htmx = {}
+			end
 
 			-- Add the autocmd for organizing imports and formatting Go files
 			vim.api.nvim_create_autocmd("BufWritePre", {
