@@ -129,6 +129,13 @@ return {
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
 			capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
+			-- Tell Neovim to treat .jsonl files as the "jsonl" filetype
+			vim.filetype.add({
+				extension = {
+					jsonl = "jsonl",
+				},
+			})
+
 			-- Enable the following language servers
 			--  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
 			--
@@ -155,6 +162,9 @@ return {
 				htmx = {},
 				tailwindcss = {},
 				marksman = {},
+				jsonls = {
+					filetypes = { "json", "jsonc", "jsonl" },
+				},
 				biome = {
 					cmd = { "biome", "lsp-proxy" },
 					filetypes = {
