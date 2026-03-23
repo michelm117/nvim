@@ -7,7 +7,21 @@ return {
 		},
 		keys = {
 			{ "-", "<cmd>Yazi<cr>", desc = "Open file explorer" },
-			{ "<space>-", "<cmd>Yazi toggle<cr>", desc = "Toggle file explorer" },
+			{
+				"<space>-",
+				function()
+					local path = require("yazi.utils").selected_file_path(nil)
+					local dir = path:is_dir() and path or path:parent()
+
+					local args = nil
+					if path:is_file() then
+						args = { reveal_path = path.filename }
+					end
+
+					require("yazi").yazi(nil, dir.filename, args)
+				end,
+				desc = "Open file explorer (dir of current file)",
+			},
 		},
 		opts = {
 			open_for_directories = false,
